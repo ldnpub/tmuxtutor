@@ -8,12 +8,14 @@ Cet écran est divisé en deux **panes** (panneaux) :
 
 ## Comment naviguer entre les panneaux ?
 
-Pour passer d'un panneau à l'autre, vous devez utiliser le **PRÉFIXE** (`Ctrl-b`) suivi de la touche **o**.
+Pour passer d'un panneau à l'autre, vous pouvez :
+1.  **Utiliser le clavier** : Appuyez sur le **PRÉFIXE** (`Ctrl-b`) suivi de la touche **o**.
+2.  **Utiliser la souris** : Cliquez simplement sur le panneau où vous voulez aller ! (Le mode souris a été activé spécialement pour ce tutoriel).
 
 **Essayez maintenant :**
-1. Appuyez sur `Ctrl` + `b`.
-2. Appuyez sur `o`.
-3. Vous êtes maintenant à droite ! Recommencez (`Ctrl-b`, `o`) pour revenir ici.
+1. Cliquez dans le panneau de droite.
+2. Cliquez à nouveau ici (à gauche).
+3. Ou essayez `Ctrl-b` puis `o`.
 
 ---
 *Cette leçon est purement informative. Le tutoriel passera à la suite dans quelques secondes.*

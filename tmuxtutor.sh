@@ -145,6 +145,8 @@ if [ -z "$TMUX" ]; then
     
     # Start tmux with no user config to ensure consistent tutorial experience
     tmux -f /dev/null new-session -d -s "$SESSION_NAME" -n "Tutorial"
+    # Enable mouse mode for easier navigation
+    tmux -f /dev/null set-option -t "$SESSION_NAME" mouse on
     
     # Wait for the session to be truly available
     max_retries=5

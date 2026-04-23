@@ -8,12 +8,14 @@ This screen is split into two **panes**:
 
 ## How to move between panes?
 
-To switch from one pane to another, you must use the **PREFIX** (`Ctrl-b`) followed by the **o** key.
+To switch from one pane to another, you can:
+1.  **Use the keyboard**: Press the **PREFIX** (`Ctrl-b`) followed by the **o** key.
+2.  **Use your mouse**: Just click on the pane you want to focus! (Mouse mode has been enabled specifically for this tutorial).
 
 **Try it now:**
-1. Press `Ctrl` + `b`.
-2. Press `o`.
-3. You are now on the right! Do it again (`Ctrl-b`, `o`) to come back here.
+1. Click in the right pane.
+2. Click back here (left).
+3. Or try `Ctrl-b` then `o`.
 
 ---
 *This lesson is informative. The tutorial will move forward in a few seconds.*
