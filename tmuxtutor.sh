@@ -58,19 +58,26 @@ check_panes() {
 
 # Wait for ENTER or Down Arrow
 wait_for_next() {
+    local validator=$1
     while true; do
-        # -s: silent, -n 1: one character, -t 1: timeout 1s to allow loop validation
-        read -rsn1 -t 1 key
-        if [ $? -eq 0 ]; then
-            if [[ "$key" == "" ]]; then return 0; fi # ENTER
-            if [[ "$key" == $'\x1b' ]]; then # Escape sequence
-                read -rsn2 -t 0.1 key
+        # Use a short timeout for better responsiveness
+        read -rsn1 -t 0.2 key
+        
+        # If read succeeded (key pressed)
+        if [[ $? -eq 0 ]]; then
+            # ENTER is an empty string with read -n1
+            if [[ -z "$key" ]]; then return 0; fi
+            
+            # Handle Escape sequences (Arrows)
+            if [[ "$key" == $'\x1b' ]]; then
+                read -rsn2 -t 0.05 key
                 if [[ "$key" == "[B" ]]; then return 0; fi # Down Arrow
             fi
         fi
-        # If a validator is passed, check it
-        if [ ! -z "$1" ] && [ "$1" != "none" ]; then
-            if $1; then return 1; fi # Goal reached automatically
+        
+        # Check validator if one is provided
+        if [[ -n "$validator" && "$validator" != "none" ]]; then
+            if $validator 2>/dev/null; then return 1; fi
         fi
     done
 }
