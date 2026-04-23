@@ -41,6 +41,28 @@ Le script détecte automatiquement votre langue via la variable `$LANG`. Pour fo
 
 ---
 
+## 🚪 How to Quit / Comment quitter
+
+### English
+To exit the tutorial at any time:
+1.  **Detach** from the session: Press `Ctrl-b` then `d`.
+2.  **Kill** the session (and the tutorial loop):
+    ```bash
+    tmux kill-session -t tmuxtutor
+    ```
+3.  Alternatively, you can just type `exit` in each pane until the window closes.
+
+### Français
+Pour quitter le tutoriel à tout moment :
+1.  **Se détacher** de la session : Appuyez sur `Ctrl-b` puis `d`.
+2.  **Arrêter** la session (et la boucle du tutoriel) :
+    ```bash
+    tmux kill-session -t tmuxtutor
+    ```
+3.  Sinon, vous pouvez simplement taper `exit` dans chaque panneau jusqu'à ce que la fenêtre se ferme.
+
+---
+
 ## 📚 Lessons Included
 
 | Lesson | Topic | Interactive |
