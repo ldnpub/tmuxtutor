@@ -146,6 +146,7 @@ if [ -z "$TMUX" ]; then
     done
 
     tmux -f /dev/null split-window -v -p 40 -t "$SESSION_NAME"
+    tmux -f /dev/null select-pane -t "$SESSION_NAME:0.0"
     
     # Run the logic in a background subshell
     (

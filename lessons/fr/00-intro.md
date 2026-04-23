@@ -1,43 +1,20 @@
-# Bienvenue dans tmuxtutor !
+# Leçon 0 : Introduction
 
-Ce tutoriel vous guidera à travers les bases de **tmux**, un puissant multiplexeur de terminaux.
+Bienvenue dans le tutoriel interactif de tmux !
 
-## Prérequis
+Cet écran est divisé en deux **panes** (panneaux) :
+1.  **En haut (ici)** : Les instructions.
+2.  **En bas** : Votre zone de pratique.
 
-* **tmux** installé sur votre système.
-* Connaissance de base de la navigation dans une page `man` ou la commande `less`.
-* Savoir ce qu'est la touche **Meta** (ou **Alt**).
+## Comment naviguer entre les panneaux ?
 
-## Expérience Interactive
+Pour passer d'un panneau à l'autre, vous devez utiliser le **PRÉFIXE** (`Ctrl-b`) suivi de la touche **o**.
 
-Ce tutoriel est conçu pour une **expérience interactive en écran scindé**. Vous lisez probablement ceci dans un panneau tout en effectuant des actions dans un autre.
+**Essayez maintenant :**
+1. Appuyez sur `Ctrl` + `b`.
+2. Appuyez sur `o`.
+3. Vous êtes maintenant en bas ! Recommencez (`Ctrl-b`, `o`) pour revenir ici.
 
-La version HTML est également disponible sur : [https://perlpunk.github.io/tmuxtutor/](https://perlpunk.github.io/tmuxtutor/)
-
-La plupart des leçons commencent par une commande telle que :
-
-```bash
-tmux new-session -s demo "man man/01.basics.man"
-```
-
-Cela lance une nouvelle session tmux nommée `demo` et exécute la commande `man`. Si vous quittez `man` avec `q`, la fenêtre tmux (et la session, s'il s'agit de la seule fenêtre) se fermera.
-
-### Session d'Entraînement
-
-Si vous souhaitez expérimenter librement, lancez votre propre session nommée :
-
-```bash
-tmux new-session -s play
-```
-
-## Configuration
-
-Ce tutoriel suppose un fichier `~/.tmux.conf` par défaut. Si vous avez déjà personnalisé votre configuration, certains comportements ou visuels pourraient différer.
-
-## Prêt à commencer ?
-
-Quittez cette introduction en appuyant sur `q`, puis passez à la leçon suivante :
-
-```bash
-./01.basics.sh
-```
+---
+*Cette leçon est purement informative. Le tutoriel passera à la suite dans quelques secondes.*
+*(Dans les prochaines versions, vous pourrez appuyer sur Entrée ici pour avancer).*

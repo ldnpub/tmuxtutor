@@ -1,43 +1,20 @@
-# Welcome to tmuxtutor!
+# Lesson 0: Introduction
 
-This tutorial will guide you through the basics of **tmux**, a powerful terminal multiplexer.
+Welcome to the interactive tmux tutorial!
 
-## Requirements
+This screen is split into two **panes**:
+1.  **Top (here)**: Instructions.
+2.  **Bottom**: Your practice area.
 
-* **tmux** installed on your system.
-* Basic knowledge of navigating a `man` page or `less` command.
-* Knowledge of what the **Meta** (or **Alt**) key is.
+## How to move between panes?
 
-## Interactive Experience
+To switch from one pane to another, you must use the **PREFIX** (`Ctrl-b`) followed by the **o** key.
 
-This tutorial is designed for a **split-screen interactive experience**. You are likely reading this in one pane while performing actions in another.
+**Try it now:**
+1. Press `Ctrl` + `b`.
+2. Press `o`.
+3. You are now at the bottom! Do it again (`Ctrl-b`, `o`) to come back here.
 
-The HTML version is also available at: [https://perlpunk.github.io/tmuxtutor/](https://perlpunk.github.io/tmuxtutor/)
-
-Most lessons are started with a command like:
-
-```bash
-tmux new-session -s demo "man man/01.basics.man"
-```
-
-This starts a new tmux session called `demo` and runs the `man` command. If you exit `man` with `q`, the tmux window (and session, if it's the only window) will close.
-
-### Practice Session
-
-If you want to experiment freely, start your own named session:
-
-```bash
-tmux new-session -s play
-```
-
-## Configuration
-
-This tutorial assumes a default `~/.tmux.conf`. If you have already customized your configuration, some behaviors or visuals might differ.
-
-## Ready to Start?
-
-Exit this introduction by pressing `q`, then proceed to the next lesson:
-
-```bash
-./01.basics.sh
-```
+---
+*This lesson is informative. The tutorial will move forward in a few seconds.*
+*(In future versions, you'll be able to press Enter here to proceed).*
