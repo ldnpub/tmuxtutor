@@ -3,8 +3,8 @@
 Welcome to the interactive tmux tutorial!
 
 This screen is split into two **panes**:
-1.  **Top (here)**: Instructions.
-2.  **Bottom**: Your practice area.
+1.  **Left (here)**: Instructions.
+2.  **Right**: Your practice area.
 
 ## How to move between panes?
 
@@ -13,8 +13,7 @@ To switch from one pane to another, you must use the **PREFIX** (`Ctrl-b`) follo
 **Try it now:**
 1. Press `Ctrl` + `b`.
 2. Press `o`.
-3. You are now at the bottom! Do it again (`Ctrl-b`, `o`) to come back here.
+3. You are now on the right! Do it again (`Ctrl-b`, `o`) to come back here.
 
 ---
 *This lesson is informative. The tutorial will move forward in a few seconds.*
-*(In future versions, you'll be able to press Enter here to proceed).*

@@ -145,7 +145,11 @@ if [ -z "$TMUX" ]; then
         fi
     done
 
-    tmux -f /dev/null split-window -v -p 40 -t "$SESSION_NAME"
+    # Split horizontally (left/right). Instructions on the left (30%)
+    tmux -f /dev/null split-window -h -p 70 -t "$SESSION_NAME"
+    # Note: split-window -h -p 70 means the NEW pane (right) will take 70%
+    # So the original pane (left) keeps 30%.
+    
     tmux -f /dev/null select-pane -t "$SESSION_NAME:0.0"
     
     # Run the logic in a background subshell
