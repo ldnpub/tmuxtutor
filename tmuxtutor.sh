@@ -72,13 +72,8 @@ DISPLAY_CMD=$(get_display_cmd)
 show_lesson() {
     local lesson_file="$LESSONS_DIR/$USER_LANG/$1"
     if [ -f "$lesson_file" ]; then
-        tmux -f /dev/null send-keys -t "$SESSION_NAME:0.0" "clear" C-m
-        tmux -f /dev/null send-keys -t "$SESSION_NAME:0.0" "$DISPLAY_CMD '$lesson_file'" C-m
-        if [ "$USER_LANG" == "fr" ]; then
-            tmux -f /dev/null send-keys -t "$SESSION_NAME:0.0" "echo -e '\n\n--- Appuyez sur ENTRÉE dans ce pane pour passer à la suite ---'" C-m
-        else
-            tmux -f /dev/null send-keys -t "$SESSION_NAME:0.0" "echo -e '\n\n--- Press ENTER in this pane to continue ---'" C-m
-        fi
+        clear
+        $DISPLAY_CMD "$lesson_file"
     fi
 }
 
@@ -91,38 +86,56 @@ run_tutorial() {
         show_lesson "$filename"
         
         if [ "$validator" != "none" ]; then
+            if [ "$USER_LANG" == "fr" ]; then
+                echo -e "\n\033[1;34m🎯 OBJECTIF :\033[0m Suivez les instructions à droite."
+                echo -e "Le tutoriel passera à la suite automatiquement une fois réussi.\n"
+            else
+                echo -e "\n\033[1;34m🎯 GOAL:\033[0m Follow the instructions on the right."
+                echo -e "The tutorial will proceed automatically once completed.\n"
+            fi
+
             # Wait for validation
             while ! $validator; do
                 sleep 1
             done
             
             # Brief success message
-            tmux -f /dev/null send-keys -t "$SESSION_NAME:0.0" "clear" C-m
             if [ "$USER_LANG" == "fr" ]; then
-                tmux -f /dev/null send-keys -t "$SESSION_NAME:0.0" "echo '✅ Objectif atteint ! Passage à la leçon suivante...'" C-m
+                echo -e "\033[1;32m✅ Objectif atteint !\033[0m"
             else
-                tmux -f /dev/null send-keys -t "$SESSION_NAME:0.0" "echo '✅ Goal reached! Moving to next lesson...'" C-m
+                echo -e "\033[1;32m✅ Goal reached!\033[0m"
             fi
             sleep 2
         else
             # Manual skip for info-only lessons
-            # We wait for the user to press Enter in the instruction pane
-            # This is tricky without a dedicated TUI, so we'll just wait a bit or use a prompt
-            # Instead of a complex read, we'll just wait for the user to type something in pane 0.0
-            # or simply wait for a fixed time for info slides.
-            sleep 10
+            if [ "$USER_LANG" == "fr" ]; then
+                echo -e "\n\033[1;33m--- Appuyez sur ENTRÉE ici pour passer à la suite ---\033[0m"
+            else
+                echo -e "\n\033[1;33m--- Press ENTER here to continue ---\033[0m"
+            fi
+            read -r
         fi
     done
     
-    tmux -f /dev/null send-keys -t "$SESSION_NAME:0.0" "clear" C-m
+    clear
     if [ "$USER_LANG" == "fr" ]; then
-        tmux -f /dev/null send-keys -t "$SESSION_NAME:0.0" "echo 'Félicitations ! Vous avez terminé tmuxtutor.'" C-m
+        echo "🎉 Félicitations ! Vous avez terminé tmuxtutor."
+        echo "Vous pouvez quitter avec : Ctrl-b d"
     else
-        tmux -f /dev/null send-keys -t "$SESSION_NAME:0.0" "echo 'Congratulations! You have finished tmuxtutor.'" C-m
+        echo "🎉 Congratulations! You have finished tmuxtutor."
+        echo "You can exit with: Ctrl-b d"
     fi
+    # Keep the pane open
+    read -r
 }
 
 # --- Execution ---
+
+if [ "$1" == "--internal-loop" ]; then
+    USER_LANG=$2
+    run_tutorial
+    exit 0
+fi
 
 if [ -z "$TMUX" ]; then
     # Cleanup previous session if it exists
@@ -147,17 +160,11 @@ if [ -z "$TMUX" ]; then
 
     # Split horizontally (left/right). Instructions on the left (30%)
     tmux -f /dev/null split-window -h -p 70 -t "$SESSION_NAME"
-    # Note: split-window -h -p 70 means the NEW pane (right) will take 70%
-    # So the original pane (left) keeps 30%.
+    
+    # Launch the tutorial loop directly in the first pane
+    tmux -f /dev/null send-keys -t "$SESSION_NAME:0.0" "./tmuxtutor.sh --internal-loop $USER_LANG" C-m
     
     tmux -f /dev/null select-pane -t "$SESSION_NAME:0.0"
-    
-    # Run the logic in a background subshell
-    (
-        sleep 1 # Let the split finish
-        run_tutorial
-    ) &
-    
     tmux -f /dev/null attach-session -t "$SESSION_NAME"
 else
     echo "Please run tmuxtutor.sh from a regular terminal (outside tmux)."
