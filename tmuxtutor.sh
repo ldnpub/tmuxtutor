@@ -56,29 +56,27 @@ check_panes() {
 
 # --- Helper Functions ---
 
+# Wait for ENTER or Down Arrow
+wait_for_next() {
+    while true; do
+        # -s: silent, -n 1: one character, -t 1: timeout 1s to allow loop validation
+        read -rsn1 -t 1 key
+        if [ $? -eq 0 ]; then
+            if [[ "$key" == "" ]]; then return 0; fi # ENTER
+            if [[ "$key" == $'\x1b' ]]; then # Escape sequence
+                read -rsn2 -t 0.1 key
+                if [[ "$key" == "[B" ]]; then return 0; fi # Down Arrow
+            fi
+        fi
+        # If a validator is passed, check it
+        if [ ! -z "$1" ] && [ "$1" != "none" ]; then
+            if $1; then return 1; fi # Goal reached automatically
+        fi
+    done
+}
+
 # Find the best tool to display Markdown
-get_display_cmd() {
-    if command -v batcat >/dev/null 2>&1; then
-        echo "batcat --style=plain --paging=never"
-    elif command -v bat >/dev/null 2>&1; then
-        echo "bat --style=plain --paging=never"
-    else
-        echo "cat"
-    fi
-}
-
-DISPLAY_CMD=$(get_display_cmd)
-
-show_lesson() {
-    local lesson_file="$LESSONS_DIR/$USER_LANG/$1"
-    if [ -f "$lesson_file" ]; then
-        clear
-        $DISPLAY_CMD "$lesson_file"
-    fi
-}
-
-# --- Main Tutorial Loop ---
-
+...
 run_tutorial() {
     for entry in "${LESSONS[@]}"; do
         IFS=':' read -r filename validator <<< "$entry"
@@ -88,32 +86,33 @@ run_tutorial() {
         if [ "$validator" != "none" ]; then
             if [ "$USER_LANG" == "fr" ]; then
                 echo -e "\n\033[1;34m🎯 OBJECTIF :\033[0m Suivez les instructions à droite."
-                echo -e "Le tutoriel passera à la suite automatiquement une fois réussi.\n"
+                echo -e "Réussissez l'action OU appuyez sur \033[1;33mENTRÉE/↓\033[0m pour passer.\n"
             else
                 echo -e "\n\033[1;34m🎯 GOAL:\033[0m Follow the instructions on the right."
-                echo -e "The tutorial will proceed automatically once completed.\n"
+                echo -e "Complete the action OR press \033[1;33mENTER/↓\033[0m to skip.\n"
             fi
 
-            # Wait for validation
-            while ! $validator; do
-                sleep 1
-            done
+            # Wait for validation OR manual skip
+            wait_for_next "$validator"
+            res=$?
             
-            # Brief success message
-            if [ "$USER_LANG" == "fr" ]; then
-                echo -e "\033[1;32m✅ Objectif atteint !\033[0m"
-            else
-                echo -e "\033[1;32m✅ Goal reached!\033[0m"
+            # Brief success message if validated automatically
+            if [ $res -eq 1 ]; then
+                if [ "$USER_LANG" == "fr" ]; then
+                    echo -e "\033[1;32m✅ Objectif atteint !\033[0m"
+                else
+                    echo -e "\033[1;32m✅ Goal reached!\033[0m"
+                fi
+                sleep 2
             fi
-            sleep 2
         else
             # Manual skip for info-only lessons
             if [ "$USER_LANG" == "fr" ]; then
-                echo -e "\n\033[1;33m--- Appuyez sur ENTRÉE ici pour passer à la suite ---\033[0m"
+                echo -e "\n\033[1;33m--- Appuyez sur ENTRÉE ou ↓ pour continuer ---\033[0m"
             else
-                echo -e "\n\033[1;33m--- Press ENTER here to continue ---\033[0m"
+                echo -e "\n\033[1;33m--- Press ENTER or ↓ to continue ---\033[0m"
             fi
-            read -r
+            wait_for_next "none"
         fi
     done
     
