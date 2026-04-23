@@ -56,12 +56,24 @@ check_panes() {
 
 # --- Helper Functions ---
 
+# Find the best tool to display Markdown
+get_display_cmd() {
+    if command -v batcat >/dev/null 2>&1; then
+        echo "batcat --style=plain --paging=never"
+    elif command -v bat >/dev/null 2>&1; then
+        echo "bat --style=plain --paging=never"
+    else
+        echo "cat"
+    fi
+}
+
+DISPLAY_CMD=$(get_display_cmd)
+
 show_lesson() {
     local lesson_file="$LESSONS_DIR/$USER_LANG/$1"
     if [ -f "$lesson_file" ]; then
         tmux -f /dev/null send-keys -t "$SESSION_NAME:0.0" "clear" C-m
-        # We use 'cat' for simple display, but 'less' or a md viewer would be better
-        tmux -f /dev/null send-keys -t "$SESSION_NAME:0.0" "cat '$lesson_file'" C-m
+        tmux -f /dev/null send-keys -t "$SESSION_NAME:0.0" "$DISPLAY_CMD '$lesson_file'" C-m
         if [ "$USER_LANG" == "fr" ]; then
             tmux -f /dev/null send-keys -t "$SESSION_NAME:0.0" "echo -e '\n\n--- Appuyez sur ENTRÉE dans ce pane pour passer à la suite ---'" C-m
         else
