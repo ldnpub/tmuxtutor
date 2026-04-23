@@ -37,19 +37,21 @@ LESSONS=(
 
 check_clock() {
     # Check if any pane is in clock-mode
-    tmux list-panes -s -t "$SESSION_NAME" -F "#{pane_in_mode} #{pane_mode}" | grep -q "1 clock-mode"
+    tmux -f /dev/null list-panes -s -t "$SESSION_NAME" -F "#{pane_in_mode} #{pane_mode}" | grep -q "1 clock-mode"
 }
 
 check_window() {
     # Check if there's more than 1 window
-    local win_count=$(tmux list-windows -t "$SESSION_NAME" | wc -l)
+    local win_count=$(tmux -f /dev/null list-windows -t "$SESSION_NAME" | wc -l)
     [ "$win_count" -gt 1 ]
 }
 
 check_panes() {
-    # Check if there's more than 2 panes in the practice window
-    local pane_count=$(tmux list-panes -t "$SESSION_NAME:0.1" 2>/dev/null | wc -l)
-    [ "$pane_count" -gt 1 ]
+    # Check if there's more than 1 pane in the first window
+    local pane_count=$(tmux -f /dev/null list-panes -t "$SESSION_NAME:0" 2>/dev/null | wc -l)
+    # We started with 2 panes (instruction + practice). 
+    # So if we have > 2, it means the user created a split.
+    [ "$pane_count" -gt 2 ]
 }
 
 # --- Helper Functions ---
@@ -57,13 +59,13 @@ check_panes() {
 show_lesson() {
     local lesson_file="$LESSONS_DIR/$USER_LANG/$1"
     if [ -f "$lesson_file" ]; then
-        tmux send-keys -t "$SESSION_NAME:0.0" "clear" C-m
+        tmux -f /dev/null send-keys -t "$SESSION_NAME:0.0" "clear" C-m
         # We use 'cat' for simple display, but 'less' or a md viewer would be better
-        tmux send-keys -t "$SESSION_NAME:0.0" "cat '$lesson_file'" C-m
+        tmux -f /dev/null send-keys -t "$SESSION_NAME:0.0" "cat '$lesson_file'" C-m
         if [ "$USER_LANG" == "fr" ]; then
-            tmux send-keys -t "$SESSION_NAME:0.0" "echo -e '\n\n--- Appuyez sur ENTRÉE dans ce pane pour passer à la suite ---'" C-m
+            tmux -f /dev/null send-keys -t "$SESSION_NAME:0.0" "echo -e '\n\n--- Appuyez sur ENTRÉE dans ce pane pour passer à la suite ---'" C-m
         else
-            tmux send-keys -t "$SESSION_NAME:0.0" "echo -e '\n\n--- Press ENTER in this pane to continue ---'" C-m
+            tmux -f /dev/null send-keys -t "$SESSION_NAME:0.0" "echo -e '\n\n--- Press ENTER in this pane to continue ---'" C-m
         fi
     fi
 }
@@ -83,42 +85,63 @@ run_tutorial() {
             done
             
             # Brief success message
-            tmux send-keys -t "$SESSION_NAME:0.0" "clear" C-m
+            tmux -f /dev/null send-keys -t "$SESSION_NAME:0.0" "clear" C-m
             if [ "$USER_LANG" == "fr" ]; then
-                tmux send-keys -t "$SESSION_NAME:0.0" "echo '✅ Objectif atteint ! Passage à la leçon suivante...'" C-m
+                tmux -f /dev/null send-keys -t "$SESSION_NAME:0.0" "echo '✅ Objectif atteint ! Passage à la leçon suivante...'" C-m
             else
-                tmux send-keys -t "$SESSION_NAME:0.0" "echo '✅ Goal reached! Moving to next lesson...'" C-m
+                tmux -f /dev/null send-keys -t "$SESSION_NAME:0.0" "echo '✅ Goal reached! Moving to next lesson...'" C-m
             fi
             sleep 2
         else
             # Manual skip for info-only lessons
             # We wait for the user to press Enter in the instruction pane
             # This is tricky without a dedicated TUI, so we'll just wait a bit or use a prompt
-            read -p "" # This won't work easily across panes, so we'll use a simpler approach
-            sleep 5
+            # Instead of a complex read, we'll just wait for the user to type something in pane 0.0
+            # or simply wait for a fixed time for info slides.
+            sleep 10
         fi
     done
     
-    tmux send-keys -t "$SESSION_NAME:0.0" "clear" C-m
+    tmux -f /dev/null send-keys -t "$SESSION_NAME:0.0" "clear" C-m
     if [ "$USER_LANG" == "fr" ]; then
-        tmux send-keys -t "$SESSION_NAME:0.0" "echo 'Félicitations ! Vous avez terminé tmuxtutor.'" C-m
+        tmux -f /dev/null send-keys -t "$SESSION_NAME:0.0" "echo 'Félicitations ! Vous avez terminé tmuxtutor.'" C-m
     else
-        tmux send-keys -t "$SESSION_NAME:0.0" "echo 'Congratulations! You have finished tmuxtutor.'" C-m
+        tmux -f /dev/null send-keys -t "$SESSION_NAME:0.0" "echo 'Congratulations! You have finished tmuxtutor.'" C-m
     fi
 }
 
 # --- Execution ---
 
 if [ -z "$TMUX" ]; then
-    tmux new-session -d -s "$SESSION_NAME" -n "Tutorial"
-    tmux split-window -v -p 40 -t "$SESSION_NAME" # 40% for instructions
+    # Cleanup previous session if it exists
+    tmux kill-session -t "$SESSION_NAME" 2>/dev/null
     
-    # Run the logic in a background subshell that will interact with the session
+    echo "Starting tmuxtutor session..."
+    
+    # Start tmux with no user config to ensure consistent tutorial experience
+    tmux -f /dev/null new-session -d -s "$SESSION_NAME" -n "Tutorial"
+    
+    # Wait for the session to be truly available
+    max_retries=5
+    count=0
+    while ! tmux has-session -t "$SESSION_NAME" 2>/dev/null; do
+        sleep 0.5
+        ((count++))
+        if [ $count -ge $max_retries ]; then
+            echo "Error: Could not start tmux session."
+            exit 1
+        fi
+    done
+
+    tmux -f /dev/null split-window -v -p 40 -t "$SESSION_NAME"
+    
+    # Run the logic in a background subshell
     (
+        sleep 1 # Let the split finish
         run_tutorial
     ) &
     
-    tmux attach-session -t "$SESSION_NAME"
+    tmux -f /dev/null attach-session -t "$SESSION_NAME"
 else
     echo "Please run tmuxtutor.sh from a regular terminal (outside tmux)."
     exit 1
