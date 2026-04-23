@@ -60,8 +60,8 @@ check_panes() {
 wait_for_next() {
     local validator=$1
     while true; do
-        # Use a short timeout for better responsiveness
-        read -rsn1 -t 0.2 key
+        # Use an integer timeout for compatibility with older Bash versions (macOS)
+        read -rsn1 -t 1 key
         
         # If read succeeded (key pressed)
         if [[ $? -eq 0 ]]; then
